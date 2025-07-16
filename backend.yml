@@ -1,0 +1,27 @@
+- name: Setup Backend Server
+  hosts: backend
+  become: yes
+  tasks:
+    - name: Install Node.js, npm, and Git
+      yum:
+        name:
+          - nodejs
+          - npm
+          - git
+        state: present
+
+    - name: Clone backend app from GitHub
+      git:
+        repo: https://github.com/DEVANAND-JAYARAMAN/backend-app.git
+        dest: /home/ec2-user/backend-app
+
+    - name: Install Node.js dependencies
+      npm:
+        path: /home/ec2-user/backend-app
+        production: yes
+
+    - name: Start backend app
+      shell: |
+        nohup node /home/ec2-user/backend-app/app.js > /home/ec2-user/backend.log 2>&1 &
+      args:
+        executable: /bin/bash

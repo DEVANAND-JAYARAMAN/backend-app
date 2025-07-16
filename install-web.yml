@@ -1,0 +1,14 @@
+- name: Install Nginx on Frontend
+  hosts: frontend
+  become: yes
+  tasks:
+    - name: Install Nginx using yum
+      yum:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes

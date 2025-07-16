@@ -1,0 +1,24 @@
+- name: Install Nginx on Frontend
+  hosts: frontend
+  become: yes
+  tasks:
+    - name: Install Nginx using yum
+      yum:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      systemd:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Copy index.html
+      copy:
+        src: frontend-app/index.html
+        dest: /usr/share/nginx/html/index.html
+
+    - name: Copy style.css
+      copy:
+        src: frontend-app/style.css
+        dest: /usr/share/nginx/html/style.css

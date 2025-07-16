@@ -1,0 +1,53 @@
+- name: Setup MySQL on Database Server
+  hosts: database
+  become: yes
+  tasks:
+    - name: Install MariaDB client and server
+      dnf:
+        name:
+          - mariadb105-server
+          - mariadb105
+        state: present
+
+    - name: Start and enable MariaDB
+      systemd:
+        name: mariadb
+        state: started
+        enabled: true
+
+    - name: Install pip3
+      dnf:
+        name: python3-pip
+        state: present
+
+    - name: Install PyMySQL via pip3
+      pip:
+        name: PyMySQL
+        executable: pip3
+
+    - name: Create application database
+      community.mysql.mysql_db:
+        name: backend_db
+        state: present
+        login_unix_socket: /var/lib/mysql/mysql.sock
+
+    - name: Create application user
+      community.mysql.mysql_user:
+        name: backend_user
+        password: backend@123
+        priv: 'backend_db.*:ALL'
+        host: '%'
+        state: present
+        login_unix_socket: /var/lib/mysql/mysql.sock
+
+    - name: Allow MariaDB to accept connections from all IPs
+      lineinfile:
+        path: /etc/my.cnf.d/mariadb-server.cnf
+        regexp: '^bind-address'
+        line: 'bind-address=0.0.0.0'
+        state: present
+
+    - name: Restart MariaDB
+      systemd:
+        name: mariadb
+        state: restarted
